@@ -28,6 +28,22 @@
 
 .filenamespace c64lib
 
+/*
+ * Macro: createMagicDeskLoader
+ * Purpose: Creates a loader for MagicDesk cartridges, providing a jump table for 
+ * setting target addresses and loading data into memory.
+ * Usage:
+ *   - Before using, ensure the macro is included in your assembly file.
+ *   - Invoke the macro without arguments to instantiate the loader routines.
+ *   - Use the jump table entries to call the loader subroutines, assuming the 
+       `loader` label preceses macro execution (loader: createMagicDeskLoader()):
+ *     - `loader.setTarget`: Sets the target memory address for loading data.
+ *       IN: X = low byte of address, A = high byte of address
+ *       Usage: JSR setTarget
+ *     - `loader.load`: Loads data into memory at the previously set address.
+ *       IN: A = bank number, X = size low byte, Y = size high byte
+ *       Usage: JSR load
+ */
 .macro createMagicDeskLoader() {
     // jump table labels
     .label setTarget = *

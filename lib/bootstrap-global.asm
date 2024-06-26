@@ -25,4 +25,6 @@
 #importonce
 .filenamespace c64lib
 
-.macro @c64lib_createMagicDeskBootstrap(zeroPageAddr1, zeroPageAddr2, loaderCodeSize, loaderTargetAddress) { createMagicDeskBootstrap(zeroPageAddr1, zeroPageAddr2, loaderCodeSize, loaderTargetAddress) }
+.macro @c64lib_createMagicDeskBootstrap(zeroPageAddr1, zeroPageAddr2, loaderCodeSize, loaderSourceAddress, loaderTargetAddress) { 
+    createMagicDeskBootstrap(zeroPageAddr1, zeroPageAddr2, loaderCodeSize, loaderSourceAddress, loaderTargetAddress) 
+}
