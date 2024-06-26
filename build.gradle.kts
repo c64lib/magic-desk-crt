@@ -35,3 +35,23 @@ tasks.register<com.hierynomus.gradle.license.tasks.LicenseCheck>("licenseAsm") {
     }
 }
 tasks["licenseFormat"].dependsOn("licenseFormatAsm")
+
+preprocess {
+    for (id in 0..0) {
+        charpad {
+            getInput().set(file("examples/slideshow/ctm/screen-$id.ctm"))
+            getUseBuildDir().set(true)
+            outputs {
+                charset {
+                    output = file("screen-$id-charset.bin")
+                }
+                charsetColours {
+                    output = file("screen-$id-colours.bin")
+                }
+                charsetScreenColours {
+                    output = file("screen-$id-screen-colours.bin")
+                }
+            }
+        }
+    }
+}
