@@ -18,3 +18,4 @@ jobs:
         steps:
             - checkout
             - run: ./gradlew licenseAsm build
+            - run: ./gradlew licenseAsm build-crt

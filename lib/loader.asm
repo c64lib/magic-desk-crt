@@ -26,8 +26,6 @@
 
 #importonce 
 
-.filenamespace c64lib
-
 /*
  * Macro: createMagicDeskLoader
  * Purpose: Creates a loader for MagicDesk cartridges, providing a jump table for 

@@ -25,7 +25,6 @@
 #import "common/lib/mem-global.asm"
 
 #importonce
-.filenamespace c64lib
 
 /*
  * Creates a auto staring bootstrap code for cartridge. Main goal of the boostrap code 

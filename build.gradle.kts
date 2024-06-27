@@ -8,9 +8,10 @@ plugins {
 retroProject {
     dialect = AssemblerType.KickAssembler
     dialectVersion = "5.25"
-    libDirs = arrayOf(".ra/deps/c64lib")
+    libDirs = arrayOf(".ra/deps/c64lib", "build/charpad")
 
     libFromGitHub("c64lib/common", "0.5.1")
+    libFromGitHub("c64lib/chipset", "0.5.0")
 }
 
 license {
@@ -35,6 +36,14 @@ tasks.register<com.hierynomus.gradle.license.tasks.LicenseCheck>("licenseAsm") {
     }
 }
 tasks["licenseFormat"].dependsOn("licenseFormatAsm")
+
+tasks.register<Exec>("build-crt") {
+    dependsOn("build")
+    group = "build"
+    description = "links the whole game as a CRT cart image"
+    commandLine("cartconv", "-t", "md", "-i", "examples/slideshow/slideshow-crt.bin", "-o", "examples/slideshow/slideshow-crt.crt", "-l", "$8000")
+}
+
 
 preprocess {
     for (id in 0..0) {
