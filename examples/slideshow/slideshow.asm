@@ -54,13 +54,12 @@
 
 .segment LOADER
     * = START_ADDRESS "Loader"
-    loaderStart: 
         // set up C64
         lda #BLACK
         sta c64lib.BORDER_COL
         sei
         c64lib_disableCIAInterrupts()
-        c64lib_configureMemory(c64lib.RAM_IO_RAM)
+        c64lib_configureMemory(c64lib.BASIC_IO_KERNAL)
         c64lib_setVICBank(0)
         cli
         // set up VIC-2
@@ -70,7 +69,7 @@
         sta c64lib.CONTROL_2
         lda #%00111011
         sta c64lib.CONTROL_1
-        lda #(SCREEN_MEM_ENC + BITMAP_LOCATION_ENC)
+        lda #%00001000
         sta c64lib.MEMORY_CONTROL
 
         // load bitmap
@@ -101,12 +100,14 @@
     loop: jmp loop
 
     mdLoader: createMagicDeskLoader() // magic desk loader code
-    loaderEnd:
 
 .segment BOOTSTRAP
     * = MD_BANK_ADDRESS "Bootstrap"
-    createMagicDeskBootstrap($07, $0F, loaderEnd - loaderStart, MD_BANK_ADDRESS, START_ADDRESS)
+    .print "Loader size = " + (loaderCodeEnd - loaderCode)
+    createMagicDeskBootstrap($FB, $FD, $400, loaderCodeEnd - loaderCode, MD_BANK_ADDRESS, START_ADDRESS)
+    loaderCode:
     .segmentout[segments="LOADER"]
+    loaderCodeEnd:
 
 .macro _dumpVar(binary) {
     .fill binary.getSize(), binary.get(i)

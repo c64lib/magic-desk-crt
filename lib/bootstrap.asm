@@ -40,13 +40,14 @@
  * Input parameters:
  *   - `zeroPageAddr1` two bytes location on a zero page space
  *   - `zeroPageAddr2` two bytes location on a zero page space
+ *   - `zeroPageAddr3` two bytes location anywhere in RAM memory
  *   - `loaderCodeSize` the size of the loader
  *   - `loaderSourceAddress` the address of the loader code (usually it is somewhere in 
  *     CRT BANK 0 right after bootstrap code). In most cases it should be set to $8000.
  *   - `loaderTargetAddress` the target address for the loader code (can be as low as 
  *     $0801 or even lower if needed)
  */
-.macro createMagicDeskBootstrap(zeroPageAddr1, zeroPageAddr2, loaderCodeSize, loaderSourceAddress, loaderTargetAddress) {
+.macro createMagicDeskBootstrap(zeroPageAddr1, zeroPageAddr2, zeroPageAddr3, loaderCodeSize, loaderSourceAddress, loaderTargetAddress) {
 
     bootstrapCodeBegin:
     .byte <init, >init
@@ -67,6 +68,9 @@
         .label size = loaderCodeSize
         .label SOURCE_PTR = zeroPageAddr1
         .label DEST_PTR = zeroPageAddr2
+        .label COUNTER = zeroPageAddr3
+
+        .print "size = " + size
 
         lda #<sourceAdr
         sta SOURCE_PTR
@@ -99,8 +103,6 @@
 
         jmp loaderTargetAddress
 
-    // data
-    COUNTER: .word 0
 
     bootstrapCodeEnd:
 }
