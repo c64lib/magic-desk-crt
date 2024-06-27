@@ -40,16 +40,21 @@
 .label SCREEN_MEM_ENC = (SCREEN_MEM - VIC_RAM_BASE)/1024
 
 .label CRT_SIZE = 512*1024
-.label SLIDES = 1
+.label SLIDES = 4
 
 .segmentdef LOADER      [min=START_ADDRESS]
 .segmentdef BOOTSTRAP   [min=MD_BANK_ADDRESS, max=$9fff, fill]
 .segmentdef SLIDE_0     [min=MD_BANK_ADDRESS, max=$dfff, fill]
+.segmentdef SLIDE_1     [min=MD_BANK_ADDRESS, max=$dfff, fill]
+.segmentdef SLIDE_2     [min=MD_BANK_ADDRESS, max=$dfff, fill]
+.segmentdef SLIDE_3     [min=MD_BANK_ADDRESS, max=$dfff, fill]
 .segmentdef FILLER      [min=MD_BANK_ADDRESS, max=MD_BANK_ADDRESS + CRT_SIZE - (1 + SLIDES*3)*8*1024 - 1, fill]
 
 .segment CRT_FILE [outBin="slideshow-crt.bin"]
     .segmentout [segments="BOOTSTRAP"]
-    .segmentout [segments="SLIDE_0"]
+    .for (var i = 0; i < SLIDES; i++) {
+        .segmentout [segments="SLIDE_" + i]
+    }
     .segmentout [segments="FILLER"]
 
 .segment LOADER
@@ -63,7 +68,7 @@
         c64lib_setVICBank(0)
         cli
         // set up VIC-2
-        lda #BLACK
+        lda #GREY
         sta c64lib.BG_COL_0
         lda #%00011000
         sta c64lib.CONTROL_2
@@ -72,34 +77,70 @@
         lda #%00001000
         sta c64lib.MEMORY_CONTROL
 
+    loop: 
+        jsr loadSlide
+        jmp loop
+
+    loadSlide: {
+        // blank screen
+        lda c64lib.CONTROL_1
+        and #%11101111
+        sta c64lib.CONTROL_1
         // load bitmap
         ldx #<BITMAP_LOCATION
         lda #>BITMAP_LOCATION
         jsr mdLoader.setTarget
         ldx #<8000
         ldy #>8000
-        lda #1
+        lda slideBank
         jsr mdLoader.load
+        inc slideBank
         // load color ram
         ldx #<c64lib.COLOR_RAM
         lda #>c64lib.COLOR_RAM
         jsr mdLoader.setTarget
         ldx #<1000
         ldy #>1000
-        lda #2
+        lda slideBank
         jsr mdLoader.load
+        inc slideBank
         // load screen colors
         ldx #<SCREEN_MEM
         lda #>SCREEN_MEM
         jsr mdLoader.setTarget
         ldx #<1000
         ldy #>1000
-        lda #3
+        lda slideBank
         jsr mdLoader.load
+        // show screen
+        lda c64lib.CONTROL_1
+        ora #%00010000
+        sta c64lib.CONTROL_1
 
-    loop: jmp loop
+        inc slideBank
+        lda slideBank
+        cmp #(SLIDES * 3 + 1)
+        bne !+
+            // loop slides
+            lda #1
+            sta slideBank
+        !:
+
+        // wait
+        ldx #255
+    !:  lda c64lib.RASTER
+        cmp #255
+        bne !-
+        dex
+        bne !-
+
+        rts
+    }
 
     mdLoader: createMagicDeskLoader() // magic desk loader code
+    
+    // vars
+    slideBank: .byte 1
 
 .segment BOOTSTRAP
     * = MD_BANK_ADDRESS "Bootstrap"
@@ -126,3 +167,15 @@
 .segment SLIDE_0
     * = MD_BANK_ADDRESS "Slide 0"
     dumpSlide("screen-0")
+
+.segment SLIDE_1
+    * = MD_BANK_ADDRESS "Slide 1"
+    dumpSlide("screen-1")
+
+.segment SLIDE_2
+    * = MD_BANK_ADDRESS "Slide 2"
+    dumpSlide("screen-2")
+
+.segment SLIDE_3
+    * = MD_BANK_ADDRESS "Slide 3"
+    dumpSlide("screen-3")

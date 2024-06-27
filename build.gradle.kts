@@ -46,7 +46,7 @@ tasks.register<Exec>("build-crt") {
 
 
 preprocess {
-    for (id in 0..0) {
+    for (id in 0..3) {
         charpad {
             getInput().set(file("examples/slideshow/ctm/screen-$id.ctm"))
             getUseBuildDir().set(true)
