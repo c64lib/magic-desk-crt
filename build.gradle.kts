@@ -46,7 +46,7 @@ tasks.register<Exec>("build-crt") {
 
 
 preprocess {
-    for (id in 0..3) {
+    for (id in 0..4) {
         charpad {
             getInput().set(file("examples/slideshow/ctm/screen-$id.ctm"))
             getUseBuildDir().set(true)
@@ -59,6 +59,10 @@ preprocess {
                 }
                 charsetScreenColours {
                     output = file("screen-$id-screen-colours.bin")
+                }
+                meta {
+                    output = file("screen-$id-metadata.asm")
+                    dialect = AssemblerType.KickAssembler
                 }
             }
         }

@@ -40,7 +40,7 @@
 .label SCREEN_MEM_ENC = (SCREEN_MEM - VIC_RAM_BASE)/1024
 
 .label CRT_SIZE = 512*1024
-.label SLIDES = 4
+.label SLIDES = 5
 
 .segmentdef LOADER      [min=START_ADDRESS]
 .segmentdef BOOTSTRAP   [min=MD_BANK_ADDRESS, max=$9fff, fill]
@@ -48,6 +48,7 @@
 .segmentdef SLIDE_1     [min=MD_BANK_ADDRESS, max=$dfff, fill]
 .segmentdef SLIDE_2     [min=MD_BANK_ADDRESS, max=$dfff, fill]
 .segmentdef SLIDE_3     [min=MD_BANK_ADDRESS, max=$dfff, fill]
+.segmentdef SLIDE_4     [min=MD_BANK_ADDRESS, max=$dfff, fill]
 .segmentdef FILLER      [min=MD_BANK_ADDRESS, max=MD_BANK_ADDRESS + CRT_SIZE - (1 + SLIDES*3)*8*1024 - 1, fill]
 
 .segment CRT_FILE [outBin="slideshow-crt.bin"]
@@ -68,7 +69,6 @@
         c64lib_setVICBank(0)
         cli
         // set up VIC-2
-        lda #GREY
         sta c64lib.BG_COL_0
         lda #%00011000
         sta c64lib.CONTROL_2
@@ -86,6 +86,10 @@
         lda c64lib.CONTROL_1
         and #%11101111
         sta c64lib.CONTROL_1
+        // set bg col
+        ldy slide
+        lda bgCols, y
+        sta c64lib.BG_COL_0
         // load bitmap
         ldx #<BITMAP_LOCATION
         lda #>BITMAP_LOCATION
@@ -117,6 +121,7 @@
         ora #%00010000
         sta c64lib.CONTROL_1
 
+        inc slide
         inc slideBank
         lda slideBank
         cmp #(SLIDES * 3 + 1)
@@ -124,6 +129,8 @@
             // loop slides
             lda #1
             sta slideBank
+            lda #0
+            sta slide
         !:
 
         // wait
@@ -141,6 +148,8 @@
     
     // vars
     slideBank: .byte 1
+    slide: .byte 0
+    bgCols: .byte 7, 0, 10, 0, 11
 
 .segment BOOTSTRAP
     * = MD_BANK_ADDRESS "Bootstrap"
@@ -179,3 +188,7 @@
 .segment SLIDE_3
     * = MD_BANK_ADDRESS "Slide 3"
     dumpSlide("screen-3")
+
+.segment SLIDE_4
+    * = MD_BANK_ADDRESS "Slide 4"
+    dumpSlide("screen-4")
