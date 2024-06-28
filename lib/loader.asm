@@ -21,8 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#import "common/lib/math-global.asm"
-#import "common/lib/mem-global.asm"
 
 #importonce 
 
@@ -127,14 +125,35 @@
             copyNext:
             lda ldaNext:$ffff, x
             sta staNext:$ffff, x
-            c64lib_dec16(copyCounter)
-            c64lib_cmp16(0, copyCounter)
+
+            dec copyCounter
+            lda copyCounter
+            cmp #$ff
+            bne !+
+                dec copyCounter + 1
+            !:
+
+            lda #0
+            cmp copyCounter
+            bne !+
+                cmp copyCounter + 1
+            !:
+
             beq end
             inx
             cpx #0
             bne copyNext
-            c64lib_add16(256, ldaNext)
-            c64lib_add16(256, staNext)
+
+            clc
+            lda ldaNext + 1
+            adc #1
+            sta ldaNext + 1
+
+            clc
+            lda staNext + 1
+            adc #1
+            sta staNext + 1
+
         jmp copyNextPage
         end:
 
