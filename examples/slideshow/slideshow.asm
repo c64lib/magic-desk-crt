@@ -24,9 +24,6 @@
 
 #import "../../lib/bootstrap.asm"
 #import "../../lib/loader.asm"
-#import "chipset/lib/vic2-global.asm"
-#import "chipset/lib/cia-global.asm"
-#import "chipset/lib/mos6510-global.asm"
 
 .label START_ADDRESS = $0801
 .label MD_BANK_ADDRESS = $8000
@@ -62,20 +59,18 @@
     * = START_ADDRESS "Loader"
         // set up C64
         lda #BLACK
-        sta c64lib.BORDER_COL
-        sei
-        c64lib_disableCIAInterrupts()
-        c64lib_configureMemory(c64lib.BASIC_IO_KERNAL)
-        c64lib_setVICBank(0)
-        cli
+        sta $D020 // BORDER
+        // set vic bank
+        lda $DD00 // CIA 2 DATA PORT A
+        and #%11111100
+        sta $DD00
         // set up VIC-2
-        sta c64lib.BG_COL_0
         lda #%00011000
-        sta c64lib.CONTROL_2
+        sta $D016 // CONTROL 2
         lda #%00111011
-        sta c64lib.CONTROL_1
+        sta $D011 // CONTROL 1
         lda #%00001000
-        sta c64lib.MEMORY_CONTROL
+        sta $D018 // MEMORY CONTROL
 
     loop: 
         jsr loadSlide
@@ -83,13 +78,13 @@
 
     loadSlide: {
         // blank screen
-        lda c64lib.CONTROL_1
+        lda $D011 // CONTROL 1
         and #%11101111
-        sta c64lib.CONTROL_1
+        sta $D011
         // set bg col
         ldy slide
         lda bgCols, y
-        sta c64lib.BG_COL_0
+        sta $D021
         // load bitmap
         ldx #<BITMAP_LOCATION
         lda #>BITMAP_LOCATION
@@ -100,8 +95,8 @@
         jsr mdLoader.load
         inc slideBank
         // load color ram
-        ldx #<c64lib.COLOR_RAM
-        lda #>c64lib.COLOR_RAM
+        ldx #$00
+        lda #$D8
         jsr mdLoader.setTarget
         ldx #<1000
         ldy #>1000
@@ -117,9 +112,9 @@
         lda slideBank
         jsr mdLoader.load
         // show screen
-        lda c64lib.CONTROL_1
+        lda $D011 // CONTROL 1
         ora #%00010000
-        sta c64lib.CONTROL_1
+        sta $D011
 
         inc slide
         inc slideBank
@@ -135,7 +130,7 @@
 
         // wait
         ldx #255
-    !:  lda c64lib.RASTER
+    !:  lda $D012 // RASTER
         cmp #255
         bne !-
         dex

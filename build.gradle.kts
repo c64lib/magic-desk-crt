@@ -9,8 +9,6 @@ retroProject {
     dialect = AssemblerType.KickAssembler
     dialectVersion = "5.25"
     libDirs = arrayOf(".ra/deps/c64lib", "build/charpad")
-
-    libFromGitHub("c64lib/chipset", "0.5.0")
 }
 
 license {
