@@ -8,9 +8,7 @@ plugins {
 retroProject {
     dialect = AssemblerType.KickAssembler
     dialectVersion = "5.25"
-    libDirs = arrayOf(".ra/deps/c64lib")
-
-    libFromGitHub("c64lib/common", "0.5.1")
+    libDirs = arrayOf(".ra/deps/c64lib", "build/charpad")
 }
 
 license {
@@ -35,3 +33,35 @@ tasks.register<com.hierynomus.gradle.license.tasks.LicenseCheck>("licenseAsm") {
     }
 }
 tasks["licenseFormat"].dependsOn("licenseFormatAsm")
+
+tasks.register<Exec>("build-crt") {
+    dependsOn("build")
+    group = "build"
+    description = "links the whole game as a CRT cart image"
+    commandLine("cartconv", "-t", "md", "-i", "examples/slideshow/slideshow-crt.bin", "-o", "examples/slideshow/slideshow-crt.crt", "-l", "$8000")
+}
+
+
+preprocess {
+    for (id in 0..4) {
+        charpad {
+            getInput().set(file("examples/slideshow/ctm/screen-$id.ctm"))
+            getUseBuildDir().set(true)
+            outputs {
+                charset {
+                    output = file("screen-$id-charset.bin")
+                }
+                charsetColours {
+                    output = file("screen-$id-colours.bin")
+                }
+                charsetScreenColours {
+                    output = file("screen-$id-screen-colours.bin")
+                }
+                meta {
+                    output = file("screen-$id-metadata.asm")
+                    dialect = AssemblerType.KickAssembler
+                }
+            }
+        }
+    }
+}

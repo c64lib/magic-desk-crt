@@ -21,13 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#import "common/lib/math-global.asm"
-#import "common/lib/mem-global.asm"
 
 #importonce 
 
-.filenamespace c64lib
-
+/*
+ * Macro: createMagicDeskLoader
+ * Purpose: Creates a loader for MagicDesk cartridges, providing a jump table for 
+ * setting target addresses and loading data into memory.
+ * Usage:
+ *   - Before using, ensure the macro is included in your assembly file.
+ *   - Invoke the macro without arguments to instantiate the loader routines.
+ *   - Use the jump table entries to call the loader subroutines, assuming the 
+       `loader` label preceses macro execution (loader: createMagicDeskLoader()):
+ *     - `loader.setTarget`: Sets the target memory address for loading data.
+ *       IN: X = low byte of address, A = high byte of address
+ *       Usage: JSR setTarget
+ *     - `loader.load`: Loads data into memory at the previously set address.
+ *       IN: A = bank number, X = size low byte, Y = size high byte
+ *       Usage: JSR load
+ */
 .macro createMagicDeskLoader() {
     // jump table labels
     .label setTarget = *
@@ -113,14 +125,35 @@
             copyNext:
             lda ldaNext:$ffff, x
             sta staNext:$ffff, x
-            c64lib_dec16(copyCounter)
-            c64lib_cmp16(0, copyCounter)
+
+            dec copyCounter
+            lda copyCounter
+            cmp #$ff
+            bne !+
+                dec copyCounter + 1
+            !:
+
+            lda #0
+            cmp copyCounter
+            bne !+
+                cmp copyCounter + 1
+            !:
+
             beq end
             inx
             cpx #0
             bne copyNext
-            c64lib_add16(256, ldaNext)
-            c64lib_add16(256, staNext)
+
+            clc
+            lda ldaNext + 1
+            adc #1
+            sta ldaNext + 1
+
+            clc
+            lda staNext + 1
+            adc #1
+            sta staNext + 1
+
         jmp copyNextPage
         end:
 
