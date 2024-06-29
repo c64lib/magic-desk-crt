@@ -8,6 +8,8 @@ The Magic-Desk-CRT project is designed to facilitate the loading of data from Co
 This format is a popular method for distributing C64 software, allowing for multiple programs to be stored on a single cartridge.
 The project provides a set of assembly libraries and examples to work with Magic Desk formatted cartridges, making it easier for developers to create or manipulate C64 software in this format.
 
+This code was written for Tony: Montezuma's Gold C64 project.
+
 ## Purpose
 
 The primary purpose of the Magic-Desk-CRT project is to provide a comprehensive toolkit for dealing with Magic Desk cartridges on the C64.
