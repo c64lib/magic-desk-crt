@@ -62,7 +62,7 @@
         cli
     initBasic:
 
-        .label sourceAdr = loaderSourceAddress + (bootstrapCodeEnd - bootstrapCodeBegin)
+        .label sourceAdr = loaderSourceAddress
         .label size = loaderCodeSize
         .label SOURCE_PTR = zeroPageAddr1
         .label DEST_PTR = zeroPageAddr2

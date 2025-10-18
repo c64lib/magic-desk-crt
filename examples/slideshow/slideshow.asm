@@ -149,7 +149,7 @@
 .segment BOOTSTRAP
     * = MD_BANK_ADDRESS "Bootstrap"
     .print "Loader size = " + (loaderCodeEnd - loaderCode)
-    createMagicDeskBootstrap($FB, $FD, $400, loaderCodeEnd - loaderCode, MD_BANK_ADDRESS, START_ADDRESS)
+    createMagicDeskBootstrap($FB, $FD, $400, loaderCodeEnd - loaderCode, loaderCode, START_ADDRESS)
     loaderCode:
     .segmentout[segments="LOADER"]
     loaderCodeEnd:
